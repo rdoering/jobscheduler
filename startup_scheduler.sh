@@ -13,10 +13,15 @@ echo DB_SERVER_USER: ${DB_SERVER_USER:=$MYSQL_ENV_MYSQL_USER}
 echo DB_SERVER_PASSWORD: ${DB_SERVER_PASSWORD:=$MYSQL_ENV_MYSQL_PASSWORD}
 echo DB_SERVER_DATABASE: ${DB_SERVER_DATABASE:=$MYSQL_ENV_MYSQL_DATABASE}
 
-while ! curl http://$DB_SERVER_HOST:$DB_SERVER_PORT/
-do
-  echo "$(date) - waiting for mysql..."
-  sleep 1
+DB_SERVER_MAX_COUNTER=45
+counter=1
+while ! mysql -u"$MYSQL_USER" -p"$MYSQL_PASSWORD" -e "show databases;" > /dev/null 2>&1; do
+    sleep 1
+    counter=`expr $counter + 1`
+    if [ $counter -gt $DB_SERVER_MAX_COUNTER ]; then
+        >&2 echo "We have been waiting for MySQL too long already; failing."
+        exit 1
+    fi;
 done
 
 sed -i -e "s/{{DB_SERVER_DBMS}}/$DB_SERVER_DBMS/g" /root/install/scheduler_install.xml /root/install/joc/joc_install.xml
