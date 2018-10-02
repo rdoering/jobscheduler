@@ -15,6 +15,7 @@ echo DB_SERVER_DATABASE: ${DB_SERVER_DATABASE:=$MYSQL_ENV_MYSQL_DATABASE}
 
 echo "Try to reach mysql server..."
 while ! mysql -h "$DB_SERVER_HOST" -P "$DB_SERVER_PORT" -u "$DB_SERVER_USER" -p"$DB_SERVER_PASSWORD" -e "show databases;" > /dev/null 2>&1
+do
     sleep 1
 done
 
